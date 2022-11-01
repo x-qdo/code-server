@@ -1,0 +1,121 @@
+We don't need Activity bar be available, together with Security settings in UI
+In theory user still can modify them, but it wouldn't be so easy
+Index: code-server/lib/vscode/src/vs/workbench/browser/parts/activitybar/activitybarPart.ts
+===================================================================
+--- code-server.orig/lib/vscode/src/vs/workbench/browser/parts/activitybar/activitybarPart.ts
++++ code-server/lib/vscode/src/vs/workbench/browser/parts/activitybar/activitybarPart.ts
+@@ -13,12 +13,11 @@ import { IBadge, NumberBadge } from 'vs/
+ import { IWorkbenchLayoutService, Parts, Position } from 'vs/workbench/services/layout/browser/layoutService';
+ import { IInstantiationService } from 'vs/platform/instantiation/common/instantiation';
+ import { IDisposable, toDisposable, DisposableStore, Disposable } from 'vs/base/common/lifecycle';
+-import { ToggleActivityBarVisibilityAction, ToggleSidebarPositionAction } from 'vs/workbench/browser/actions/layoutActions';
+ import { IThemeService, IColorTheme, ThemeIcon } from 'vs/platform/theme/common/themeService';
+ import { ACTIVITY_BAR_BACKGROUND, ACTIVITY_BAR_BORDER, ACTIVITY_BAR_FOREGROUND, ACTIVITY_BAR_ACTIVE_BORDER, ACTIVITY_BAR_BADGE_BACKGROUND, ACTIVITY_BAR_BADGE_FOREGROUND, ACTIVITY_BAR_INACTIVE_FOREGROUND, ACTIVITY_BAR_ACTIVE_BACKGROUND, ACTIVITY_BAR_DRAG_AND_DROP_BORDER } from 'vs/workbench/common/theme';
+ import { contrastBorder } from 'vs/platform/theme/common/colorRegistry';
+ import { CompositeBar, ICompositeBarItem, CompositeDragAndDrop } from 'vs/workbench/browser/parts/compositeBar';
+-import { Dimension, createCSSRule, asCSSUrl, addDisposableListener, EventType, isAncestor } from 'vs/base/browser/dom';
++import { Dimension, createCSSRule, asCSSUrl, addDisposableListener, EventType} from 'vs/base/browser/dom';
+ import { IStorageService, StorageScope, IStorageValueChangeEvent, StorageTarget } from 'vs/platform/storage/common/storage';
+ import { IExtensionService } from 'vs/workbench/services/extensions/common/extensions';
+ import { URI, UriComponents } from 'vs/base/common/uri';
+@@ -176,27 +175,27 @@ export class ActivitybarPart extends Par
+ 			getOnCompositeClickAction: compositeId => toAction({ id: compositeId, label: '', run: async () => this.paneCompositePart.getActivePaneComposite()?.getId() === compositeId ? this.paneCompositePart.hideActivePaneComposite() : this.paneCompositePart.openPaneComposite(compositeId) }),
+ 			fillExtraContextMenuActions: (actions, e?: MouseEvent | GestureEvent) => {
+ 				// Menu
+-				const menuBarVisibility = getMenuBarVisibility(this.configurationService);
+-				if (menuBarVisibility === 'compact' || menuBarVisibility === 'hidden' || menuBarVisibility === 'toggle') {
+-					actions.unshift(...[toAction({ id: 'toggleMenuVisibility', label: localize('menu', "Menu"), checked: menuBarVisibility === 'compact', run: () => this.configurationService.updateValue('window.menuBarVisibility', menuBarVisibility === 'compact' ? 'toggle' : 'compact') }), new Separator()]);
+-				}
+-
+-				if (menuBarVisibility === 'compact' && this.menuBarContainer && e?.target) {
+-					if (isAncestor(e.target as Node, this.menuBarContainer)) {
+-						actions.unshift(...[toAction({ id: 'hideCompactMenu', label: localize('hideMenu', "Hide Menu"), run: () => this.configurationService.updateValue('window.menuBarVisibility', 'toggle') }), new Separator()]);
+-					}
+-				}
++				// const menuBarVisibility = getMenuBarVisibility(this.configurationService);
++				// if (menuBarVisibility === 'compact' || menuBarVisibility === 'hidden' || menuBarVisibility === 'toggle') {
++				// 	actions.unshift(...[toAction({ id: 'toggleMenuVisibility', label: localize('menu', "Menu"), checked: menuBarVisibility === 'compact', run: () => this.configurationService.updateValue('window.menuBarVisibility', menuBarVisibility === 'compact' ? 'toggle' : 'compact') }), new Separator()]);
++				// }
++				//
++				// if (menuBarVisibility === 'compact' && this.menuBarContainer && e?.target) {
++				// 	if (isAncestor(e.target as Node, this.menuBarContainer)) {
++				// 		actions.unshift(...[toAction({ id: 'hideCompactMenu', label: localize('hideMenu', "Hide Menu"), run: () => this.configurationService.updateValue('window.menuBarVisibility', 'toggle') }), new Separator()]);
++				// 	}
++				// }
+ 
+ 				// Accounts
+ 				actions.push(new Separator());
+-				actions.push(toAction({ id: 'toggleAccountsVisibility', label: localize('accounts', "Accounts"), checked: this.accountsVisibilityPreference, run: () => this.accountsVisibilityPreference = !this.accountsVisibilityPreference }));
+-				actions.push(new Separator());
++				// actions.push(toAction({ id: 'toggleAccountsVisibility', label: localize('accounts', "Accounts"), checked: this.accountsVisibilityPreference, run: () => this.accountsVisibilityPreference = !this.accountsVisibilityPreference }));
++				// actions.push(new Separator());
+ 
+ 				// Toggle Sidebar
+-				actions.push(toAction({ id: ToggleSidebarPositionAction.ID, label: ToggleSidebarPositionAction.getLabel(this.layoutService), run: () => this.instantiationService.invokeFunction(accessor => new ToggleSidebarPositionAction().run(accessor)) }));
++				// actions.push(toAction({ id: ToggleSidebarPositionAction.ID, label: ToggleSidebarPositionAction.getLabel(this.layoutService), run: () => this.instantiationService.invokeFunction(accessor => new ToggleSidebarPositionAction().run(accessor)) }));
+ 
+ 				// Toggle Activity Bar
+-				actions.push(toAction({ id: ToggleActivityBarVisibilityAction.ID, label: localize('hideActivitBar', "Hide Activity Bar"), run: () => this.instantiationService.invokeFunction(accessor => new ToggleActivityBarVisibilityAction().run(accessor)) }));
++				// actions.push(toAction({ id: ToggleActivityBarVisibilityAction.ID, label: localize('hideActivitBar', "Hide Activity Bar"), run: () => this.instantiationService.invokeFunction(accessor => new ToggleActivityBarVisibilityAction().run(accessor)) }));
+ 			},
+ 			getContextMenuActionsForComposite: compositeId => this.getContextMenuActionsForComposite(compositeId),
+ 			getDefaultCompositeId: () => this.viewDescriptorService.getDefaultViewContainer(this.location)?.id,
+@@ -985,7 +984,7 @@ export class ActivitybarPart extends Par
+ 	}
+ 
+ 	private get accountsVisibilityPreference(): boolean {
+-		return this.storageService.getBoolean(AccountsActivityActionViewItem.ACCOUNTS_VISIBILITY_PREFERENCE_KEY, StorageScope.GLOBAL, true);
++		return false;
+ 	}
+ 
+ 	private set accountsVisibilityPreference(value: boolean) {
+Index: code-server/lib/vscode/src/vs/platform/window/common/window.ts
+===================================================================
+--- code-server.orig/lib/vscode/src/vs/platform/window/common/window.ts
++++ code-server/lib/vscode/src/vs/platform/window/common/window.ts
+@@ -105,7 +105,9 @@ export function getMenuBarVisibility(con
+ 	const titleBarStyle = getTitleBarStyle(configurationService);
+ 	const menuBarVisibility = configurationService.getValue<MenuBarVisibility | 'default'>('window.menuBarVisibility');
+ 
+-	if (menuBarVisibility === 'default' || (titleBarStyle === 'native' && menuBarVisibility === 'compact') || (isMacintosh && isNative)) {
++	if (isWeb) {
++		return 'compact';
++	} else if (menuBarVisibility === 'default' || (titleBarStyle === 'native' && menuBarVisibility === 'compact') || (isMacintosh && isNative)) {
+ 		return 'classic';
+ 	} else {
+ 		return menuBarVisibility;
+Index: code-server/lib/vscode/src/vs/server/node/webClientServer.ts
+===================================================================
+--- code-server.orig/lib/vscode/src/vs/server/node/webClientServer.ts
++++ code-server/lib/vscode/src/vs/server/node/webClientServer.ts
+@@ -317,7 +317,7 @@ export class WebClientServer {
+ 				codeServerVersion: this._productService.codeServerVersion,
+ 				rootEndpoint: base,
+ 				updateEndpoint: !this._environmentService.args['disable-update-check'] ? base + '/update/check' : undefined,
+-				logoutEndpoint: this._environmentService.args['auth'] ? base + '/logout' : undefined,
++				logoutEndpoint: undefined,
+ 				proxyEndpointTemplate: base + '/proxy/{{port}}',
+ 				serviceWorker: {
+ 					scope: vscodeBase + '/',
+Index: code-server/lib/vscode/src/vs/workbench/contrib/preferences/browser/settingsLayout.ts
+===================================================================
+--- code-server.orig/lib/vscode/src/vs/workbench/contrib/preferences/browser/settingsLayout.ts
++++ code-server/lib/vscode/src/vs/workbench/contrib/preferences/browser/settingsLayout.ts
+@@ -230,17 +230,6 @@ export const tocData: ITOCEntry<string> 
+ 					settings: ['settingsSync.*']
+ 				}
+ 			]
+-		},
+-		{
+-			id: 'security',
+-			label: localize('security', "Security"),
+-			children: [
+-				{
+-					id: 'security/workspace',
+-					label: localize('workspace', "Workspace"),
+-					settings: ['security.workspace.*']
+-				}
+-			]
+ 		}
+ 	]
+ };
