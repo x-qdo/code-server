@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
+set -x
 
 # This is due to an upstream issue with RHEL7/CentOS 7 comptability with node-argon2
 # See: https://github.com/cdr/code-server/pull/3422#pullrequestreview-677765057
