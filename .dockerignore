@@ -1,3 +1,5 @@
-**
-!release-packages
-!ci
+node_modules
+.pc
+.tours
+out
+test/node_modules
