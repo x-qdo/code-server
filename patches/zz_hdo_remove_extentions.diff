@@ -1,0 +1,403 @@
+Index: code-server/lib/vscode/extensions/github/extension.webpack.config.js
+===================================================================
+--- code-server.orig/lib/vscode/extensions/github/extension.webpack.config.js
++++ /dev/null
+@@ -1,17 +0,0 @@
+-/*---------------------------------------------------------------------------------------------
+- *  Copyright (c) Microsoft Corporation. All rights reserved.
+- *  Licensed under the MIT License. See License.txt in the project root for license information.
+- *--------------------------------------------------------------------------------------------*/
+-
+-//@ts-check
+-
+-'use strict';
+-
+-const withDefaults = require('../shared.webpack.config');
+-
+-module.exports = withDefaults({
+-	context: __dirname,
+-	entry: {
+-		extension: './src/extension.ts'
+-	}
+-});
+Index: code-server/lib/vscode/extensions/github/package.json
+===================================================================
+--- code-server.orig/lib/vscode/extensions/github/package.json
++++ /dev/null
+@@ -1,98 +0,0 @@
+-{
+-  "name": "github",
+-  "displayName": "%displayName%",
+-  "description": "%description%",
+-  "publisher": "vscode",
+-  "license": "MIT",
+-  "version": "0.0.1",
+-  "engines": {
+-    "vscode": "^1.41.0"
+-  },
+-  "icon": "images/icon.png",
+-  "categories": [
+-    "Other"
+-  ],
+-  "activationEvents": [
+-    "*"
+-  ],
+-  "extensionDependencies": [
+-    "vscode.git-base"
+-  ],
+-  "main": "./out/extension.js",
+-  "capabilities": {
+-    "virtualWorkspaces": false,
+-    "untrustedWorkspaces": {
+-      "supported": true
+-    }
+-  },
+-  "contributes": {
+-    "commands": [
+-      {
+-        "command": "github.publish",
+-        "title": "Publish to GitHub"
+-      }
+-    ],
+-    "menus": {
+-      "commandPalette": [
+-        {
+-          "command": "github.publish",
+-          "when": "git-base.gitEnabled"
+-        }
+-      ]
+-    },
+-    "configuration": [
+-      {
+-        "title": "GitHub",
+-        "properties": {
+-          "github.gitAuthentication": {
+-            "type": "boolean",
+-            "scope": "resource",
+-            "default": true,
+-            "description": "%config.gitAuthentication%"
+-          },
+-          "github.gitProtocol": {
+-            "type": "string",
+-            "enum": [
+-              "https",
+-              "ssh"
+-            ],
+-            "default": "https",
+-            "description": "%config.gitProtocol%"
+-          }
+-        }
+-      }
+-    ],
+-    "viewsWelcome": [
+-      {
+-        "view": "scm",
+-        "contents": "%welcome.publishFolder%",
+-        "when": "config.git.enabled && git.state == initialized && workbenchState == folder"
+-      },
+-      {
+-        "view": "scm",
+-        "contents": "%welcome.publishWorkspaceFolder%",
+-        "when": "config.git.enabled && git.state == initialized && workbenchState == workspace && workspaceFolderCount != 0"
+-      }
+-    ],
+-    "markdown.previewStyles": [
+-      "./markdown.css"
+-    ]
+-  },
+-  "scripts": {
+-    "vscode:prepublish": "npm run compile",
+-    "compile": "gulp compile-extension:github",
+-    "watch": "gulp watch-extension:github"
+-  },
+-  "dependencies": {
+-    "@octokit/rest": "^18.0.1",
+-    "tunnel": "^0.0.6",
+-    "vscode-nls": "^4.1.2"
+-  },
+-  "devDependencies": {
+-    "@types/node": "16.x"
+-  },
+-  "repository": {
+-    "type": "git",
+-    "url": "https://github.com/microsoft/vscode.git"
+-  }
+-}
+Index: code-server/lib/vscode/extensions/github-authentication/extension-browser.webpack.config.js
+===================================================================
+--- code-server.orig/lib/vscode/extensions/github-authentication/extension-browser.webpack.config.js
++++ /dev/null
+@@ -1,29 +0,0 @@
+-/*---------------------------------------------------------------------------------------------
+- *  Copyright (c) Microsoft Corporation. All rights reserved.
+- *  Licensed under the MIT License. See License.txt in the project root for license information.
+- *--------------------------------------------------------------------------------------------*/
+-
+-//@ts-check
+-
+-'use strict';
+-
+-const path = require('path');
+-const withBrowserDefaults = require('../shared.webpack.config').browser;
+-
+-module.exports = withBrowserDefaults({
+-	context: __dirname,
+-	node: false,
+-	entry: {
+-		extension: './src/extension.ts',
+-	},
+-	externals: {
+-		'keytar': 'commonjs keytar',
+-	},
+-	resolve: {
+-		alias: {
+-			'node-fetch': path.resolve(__dirname, 'node_modules/node-fetch/browser.js'),
+-			'uuid': path.resolve(__dirname, 'node_modules/uuid/dist/esm-browser/index.js'),
+-			'./authServer': path.resolve(__dirname, 'src/env/browser/authServer'),
+-		}
+-	}
+-});
+Index: code-server/lib/vscode/extensions/github-authentication/extension.webpack.config.js
+===================================================================
+--- code-server.orig/lib/vscode/extensions/github-authentication/extension.webpack.config.js
++++ /dev/null
+@@ -1,20 +0,0 @@
+-/*---------------------------------------------------------------------------------------------
+- *  Copyright (c) Microsoft Corporation. All rights reserved.
+- *  Licensed under the MIT License. See License.txt in the project root for license information.
+- *--------------------------------------------------------------------------------------------*/
+-
+-//@ts-check
+-
+-'use strict';
+-
+-const withDefaults = require('../shared.webpack.config');
+-
+-module.exports = withDefaults({
+-	context: __dirname,
+-	entry: {
+-		extension: './src/extension.ts',
+-	},
+-	externals: {
+-		'keytar': 'commonjs keytar'
+-	}
+-});
+Index: code-server/lib/vscode/extensions/github-authentication/package.json
+===================================================================
+--- code-server.orig/lib/vscode/extensions/github-authentication/package.json
++++ /dev/null
+@@ -1,77 +0,0 @@
+-{
+-  "name": "github-authentication",
+-  "displayName": "%displayName%",
+-  "description": "%description%",
+-  "publisher": "vscode",
+-  "license": "MIT",
+-  "version": "0.0.2",
+-  "engines": {
+-    "vscode": "^1.41.0"
+-  },
+-  "icon": "images/icon.png",
+-  "categories": [
+-    "Other"
+-  ],
+-  "api": "none",
+-  "extensionKind": [
+-    "ui",
+-    "workspace"
+-  ],
+-  "activationEvents": [
+-    "onAuthenticationRequest:github",
+-    "onAuthenticationRequest:github-enterprise"
+-  ],
+-  "capabilities": {
+-    "virtualWorkspaces": true,
+-    "untrustedWorkspaces": {
+-      "supported": true
+-    }
+-  },
+-  "contributes": {
+-    "authentication": [
+-      {
+-        "label": "GitHub",
+-        "id": "github"
+-      },
+-      {
+-        "label": "GitHub Enterprise",
+-        "id": "github-enterprise"
+-      }
+-    ],
+-    "configuration": {
+-      "title": "GitHub Enterprise Authentication Provider",
+-      "properties": {
+-        "github-enterprise.uri": {
+-          "type": "string",
+-          "description": "URI of your GitHub Enterprise Instance"
+-        }
+-      }
+-    }
+-  },
+-  "aiKey": "AIF-d9b70cd4-b9f9-4d70-929b-a071c400b217",
+-  "main": "./out/extension.js",
+-  "browser": "./dist/browser/extension.js",
+-  "scripts": {
+-    "compile": "gulp compile-extension:github-authentication",
+-    "compile-web": "npx webpack-cli --config extension-browser.webpack.config --mode none",
+-    "watch": "gulp watch-extension:github-authentication",
+-    "watch-web": "npx webpack-cli --config extension-browser.webpack.config --mode none --watch --info-verbosity verbose",
+-    "vscode:prepublish": "npm run compile"
+-  },
+-  "dependencies": {
+-    "node-fetch": "2.6.7",
+-    "uuid": "8.1.0",
+-    "@vscode/extension-telemetry": "0.4.10",
+-    "vscode-nls": "^5.0.0",
+-    "vscode-tas-client": "^0.1.47"
+-  },
+-  "devDependencies": {
+-    "@types/node": "16.x",
+-    "@types/node-fetch": "^2.5.7",
+-    "@types/uuid": "8.0.0"
+-  },
+-  "repository": {
+-    "type": "git",
+-    "url": "https://github.com/microsoft/vscode.git"
+-  }
+-}
+Index: code-server/lib/vscode/extensions/microsoft-authentication/extension-browser.webpack.config.js
+===================================================================
+--- code-server.orig/lib/vscode/extensions/microsoft-authentication/extension-browser.webpack.config.js
++++ /dev/null
+@@ -1,32 +0,0 @@
+-/*---------------------------------------------------------------------------------------------
+- *  Copyright (c) Microsoft Corporation. All rights reserved.
+- *  Licensed under the MIT License. See License.txt in the project root for license information.
+- *--------------------------------------------------------------------------------------------*/
+-
+-//@ts-check
+-
+-'use strict';
+-
+-const path = require('path');
+-const withBrowserDefaults = require('../shared.webpack.config').browser;
+-
+-module.exports = withBrowserDefaults({
+-	context: __dirname,
+-	node: {
+-		global: true,
+-		__filename: false,
+-		__dirname: false,
+-	},
+-	entry: {
+-		extension: './src/extension.ts',
+-	},
+-	externals: {
+-		'keytar': 'commonjs keytar'
+-	},
+-	resolve: {
+-		alias: {
+-			'./env/node': path.resolve(__dirname, 'src/env/browser'),
+-			'./authServer': path.resolve(__dirname, 'src/env/browser/authServer'),
+-		}
+-	}
+-});
+Index: code-server/lib/vscode/extensions/microsoft-authentication/extension.webpack.config.js
+===================================================================
+--- code-server.orig/lib/vscode/extensions/microsoft-authentication/extension.webpack.config.js
++++ /dev/null
+@@ -1,20 +0,0 @@
+-/*---------------------------------------------------------------------------------------------
+- *  Copyright (c) Microsoft Corporation. All rights reserved.
+- *  Licensed under the MIT License. See License.txt in the project root for license information.
+- *--------------------------------------------------------------------------------------------*/
+-
+-//@ts-check
+-
+-'use strict';
+-
+-const withDefaults = require('../shared.webpack.config');
+-
+-module.exports = withDefaults({
+-	context: __dirname,
+-	entry: {
+-		extension: './src/extension.ts',
+-	},
+-	externals: {
+-		'keytar': 'commonjs keytar'
+-	}
+-});
+Index: code-server/lib/vscode/extensions/microsoft-authentication/package.json
+===================================================================
+--- code-server.orig/lib/vscode/extensions/microsoft-authentication/package.json
++++ /dev/null
+@@ -1,70 +0,0 @@
+-{
+-  "name": "microsoft-authentication",
+-  "publisher": "vscode",
+-  "license": "MIT",
+-  "displayName": "%displayName%",
+-  "description": "%description%",
+-  "version": "0.0.1",
+-  "engines": {
+-    "vscode": "^1.42.0"
+-  },
+-  "icon": "media/icon.png",
+-  "categories": [
+-    "Other"
+-  ],
+-  "activationEvents": [
+-    "onAuthenticationRequest:microsoft"
+-  ],
+-  "enabledApiProposals": [
+-    "idToken"
+-  ],
+-  "capabilities": {
+-    "virtualWorkspaces": true,
+-    "untrustedWorkspaces": {
+-      "supported": true
+-    }
+-  },
+-  "extensionKind": [
+-    "ui",
+-    "workspace"
+-  ],
+-  "contributes": {
+-    "authentication": [
+-      {
+-        "label": "Microsoft",
+-        "id": "microsoft"
+-      }
+-    ]
+-  },
+-  "aiKey": "AIF-d9b70cd4-b9f9-4d70-929b-a071c400b217",
+-  "main": "./out/extension.js",
+-  "browser": "./dist/browser/extension.js",
+-  "scripts": {
+-    "vscode:prepublish": "npm run compile",
+-    "compile": "gulp compile-extension:microsoft-authentication",
+-    "compile-web": "npx webpack-cli --config extension-browser.webpack.config --mode none",
+-    "watch": "gulp watch-extension:microsoft-authentication",
+-    "watch-web": "npx webpack-cli --config extension-browser.webpack.config --mode none --watch --info-verbosity verbose"
+-  },
+-  "devDependencies": {
+-    "@types/node": "16.x",
+-    "@types/node-fetch": "^2.5.7",
+-    "@types/randombytes": "^2.0.0",
+-    "@types/sha.js": "^2.4.0",
+-    "@types/uuid": "8.0.0"
+-  },
+-  "dependencies": {
+-    "buffer": "^5.6.0",
+-    "node-fetch": "2.6.7",
+-    "randombytes": "~2.1.0",
+-    "sha.js": "2.4.11",
+-    "stream": "0.0.2",
+-    "uuid": "^8.2.0",
+-    "@vscode/extension-telemetry": "0.4.10",
+-    "vscode-nls": "^5.0.0"
+-  },
+-  "repository": {
+-    "type": "git",
+-    "url": "https://github.com/microsoft/vscode.git"
+-  }
+-}
