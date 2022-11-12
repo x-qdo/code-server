@@ -1,0 +1,24 @@
+Index: code-server/lib/vscode/build/gulpfile.extensions.js
+===================================================================
+--- code-server.orig/lib/vscode/build/gulpfile.extensions.js
++++ code-server/lib/vscode/build/gulpfile.extensions.js
+@@ -68,6 +68,7 @@ const compilations = [
+ 	'vscode-colorize-tests/tsconfig.json',
+ 	'vscode-custom-editor-tests/tsconfig.json',
+ 	'vscode-notebook-tests/tsconfig.json',
++	'vscode-recorder/tsconfig.json',
+ 	'vscode-test-resolver/tsconfig.json'
+ ];
+ 
+Index: code-server/lib/vscode/build/npm/dirs.js
+===================================================================
+--- code-server.orig/lib/vscode/build/npm/dirs.js
++++ code-server/lib/vscode/build/npm/dirs.js
+@@ -44,6 +44,7 @@ exports.dirs = [
+ 	'extensions/vscode-custom-editor-tests',
+ 	'extensions/vscode-notebook-tests',
+ 	'extensions/vscode-test-resolver',
++	'extensions/vscode-recorder',
+ 	'remote',
+ 	'remote/web',
+ 	'test/automation',
