@@ -1,0 +1,17 @@
+Index: code-server/lib/vscode/src/vs/workbench/contrib/extensions/browser/fileBasedRecommendations.ts
+===================================================================
+--- code-server.orig/lib/vscode/src/vs/workbench/contrib/extensions/browser/fileBasedRecommendations.ts
++++ code-server/lib/vscode/src/vs/workbench/contrib/extensions/browser/fileBasedRecommendations.ts
+@@ -175,10 +175,10 @@ export class FileBasedRecommendations ex
+ 			return;
+ 		}
+ 
+-		this.promptRecommendationsForModel(model);
++		// this.promptRecommendationsForModel(model);
+ 		const disposables = new DisposableStore();
+ 		disposables.add(model.onDidChangeLanguage(() => this.promptRecommendationsForModel(model)));
+-		disposables.add(model.onWillDispose(() => disposables.dispose()));
++		// disposables.add(model.onWillDispose(() => disposables.dispose()));
+ 	}
+ 
+ 	/**
