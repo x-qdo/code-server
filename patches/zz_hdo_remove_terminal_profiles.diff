@@ -1,0 +1,716 @@
+Index: code-server/lib/vscode/src/vs/workbench/contrib/terminal/browser/terminalView.ts
+===================================================================
+--- code-server.orig/lib/vscode/src/vs/workbench/contrib/terminal/browser/terminalView.ts
++++ code-server/lib/vscode/src/vs/workbench/contrib/terminal/browser/terminalView.ts
+@@ -55,7 +55,6 @@ export class TerminalViewPane extends Vi
+ 	private _terminalsInitialized = false;
+ 	private _isWelcomeShowing: boolean = false;
+ 	private _tabButtons: DropdownWithPrimaryActionViewItem | undefined;
+-	private readonly _dropdownMenu: IMenu;
+ 	private readonly _singleTabMenu: IMenu;
+ 	private _viewShowing: IContextKey<boolean>;
+ 
+@@ -101,7 +100,7 @@ export class TerminalViewPane extends Vi
+ 				this.layoutBody(this._parentDomElement.offsetHeight, this._parentDomElement.offsetWidth);
+ 			}
+ 		}));
+-		this._dropdownMenu = this._register(this._menuService.createMenu(MenuId.TerminalNewDropdownContext, this._contextKeyService));
++		// this._dropdownMenu = this._register(this._menuService.createMenu(MenuId.TerminalNewDropdownContext, this._contextKeyService));
+ 		this._singleTabMenu = this._register(this._menuService.createMenu(MenuId.TerminalInlineTabContext, this._contextKeyService));
+ 		this._register(this._terminalProfileService.onDidChangeAvailableProfiles(profiles => this._updateTabActionBar(profiles)));
+ 		this._viewShowing = TerminalContextKeys.viewShowing.bindTo(this._contextKeyService);
+@@ -230,7 +229,7 @@ export class TerminalViewPane extends Vi
+ 					this._tabButtons.dispose();
+ 				}
+ 
+-				const actions = getTerminalActionBarArgs(TerminalLocation.Panel, this._terminalProfileService.availableProfiles, this._getDefaultProfileName(), this._terminalProfileService.contributedProfiles, this._instantiationService, this._terminalService, this._contextKeyService, this._commandService, this._dropdownMenu);
++				const actions = getTerminalActionBarArgs(TerminalLocation.Panel, this._terminalProfileService.availableProfiles, this._getDefaultProfileName(), this._terminalProfileService.contributedProfiles, this._instantiationService, this._terminalService, this._contextKeyService, this._commandService);
+ 				this._tabButtons = new DropdownWithPrimaryActionViewItem(actions.primaryAction, actions.dropdownAction, actions.dropdownMenuActions, actions.className, this._contextMenuService, {}, this._keybindingService, this._notificationService, this._contextKeyService, this._themeService);
+ 				this._updateTabActionBar(this._terminalProfileService.availableProfiles);
+ 				return this._tabButtons;
+@@ -254,7 +253,7 @@ export class TerminalViewPane extends Vi
+ 	}
+ 
+ 	private _updateTabActionBar(profiles: ITerminalProfile[]): void {
+-		const actions = getTerminalActionBarArgs(TerminalLocation.Panel, profiles, this._getDefaultProfileName(), this._terminalProfileService.contributedProfiles, this._instantiationService, this._terminalService, this._contextKeyService, this._commandService, this._dropdownMenu);
++		const actions = getTerminalActionBarArgs(TerminalLocation.Panel, profiles, this._getDefaultProfileName(), this._terminalProfileService.contributedProfiles, this._instantiationService, this._terminalService, this._contextKeyService, this._commandService);
+ 		this._tabButtons?.update(actions.dropdownAction, actions.dropdownMenuActions);
+ 	}
+ 
+Index: code-server/lib/vscode/src/vs/workbench/contrib/terminal/browser/terminalMenus.ts
+===================================================================
+--- code-server.orig/lib/vscode/src/vs/workbench/contrib/terminal/browser/terminalMenus.ts
++++ code-server/lib/vscode/src/vs/workbench/contrib/terminal/browser/terminalMenus.ts
+@@ -61,7 +61,7 @@ export function setupTerminalMenus(): vo
+ 					command: {
+ 						id: TerminalCommandId.Split,
+ 						title: localize({ key: 'miSplitTerminal', comment: ['&& denotes a mnemonic'] }, "&&Split Terminal"),
+-						precondition: ContextKeyExpr.has(TerminalContextKeyStrings.IsOpen)
++						precondition: ContextKeyExpr.has('non-existing-key') // Disable split menu
+ 					},
+ 					order: 2,
+ 					when: TerminalContextKeys.processSupported
+@@ -310,16 +310,6 @@ export function setupTerminalMenus(): vo
+ 				id: MenuId.TerminalTabEmptyAreaContext,
+ 				item: {
+ 					command: {
+-						id: TerminalCommandId.NewWithProfile,
+-						title: localize('workbench.action.terminal.newWithProfile.short', "New Terminal With Profile")
+-					},
+-					group: ContextMenuGroup.Create
+-				}
+-			},
+-			{
+-				id: MenuId.TerminalTabEmptyAreaContext,
+-				item: {
+-					command: {
+ 						id: TerminalCommandId.New,
+ 						title: localize('workbench.action.terminal.new.short', "New Terminal")
+ 					},
+@@ -329,30 +319,30 @@ export function setupTerminalMenus(): vo
+ 		]
+ 	);
+ 
+-	MenuRegistry.appendMenuItems(
+-		[
+-			{
+-				id: MenuId.TerminalNewDropdownContext,
+-				item: {
+-					command: {
+-						id: TerminalCommandId.SelectDefaultProfile,
+-						title: { value: localize('workbench.action.terminal.selectDefaultProfile', "Select Default Profile"), original: 'Select Default Profile' }
+-					},
+-					group: TerminalTabContextMenuGroup.Configure
+-				}
+-			},
+-			{
+-				id: MenuId.TerminalNewDropdownContext,
+-				item: {
+-					command: {
+-						id: TerminalCommandId.ConfigureTerminalSettings,
+-						title: localize('workbench.action.terminal.openSettings', "Configure Terminal Settings")
+-					},
+-					group: TerminalTabContextMenuGroup.Configure
+-				}
+-			}
+-		]
+-	);
++	// MenuRegistry.appendMenuItems(
++	// 	[
++	// 		{
++	// 			id: MenuId.TerminalNewDropdownContext,
++	// 			item: {
++	// 				command: {
++	// 					id: TerminalCommandId.SelectDefaultProfile,
++	// 					title: { value: localize('workbench.action.terminal.selectDefaultProfile', "Select Default Profile"), original: 'Select Default Profile' }
++	// 				},
++	// 				group: TerminalTabContextMenuGroup.Configure
++	// 			}
++	// 		},
++	// 		{
++	// 			id: MenuId.TerminalNewDropdownContext,
++	// 			item: {
++	// 				command: {
++	// 					id: TerminalCommandId.ConfigureTerminalSettings,
++	// 					title: localize('workbench.action.terminal.openSettings', "Configure Terminal Settings")
++	// 				},
++	// 				group: TerminalTabContextMenuGroup.Configure
++	// 			}
++	// 		}
++	// 	]
++	// );
+ 
+ 	MenuRegistry.appendMenuItems(
+ 		[
+@@ -504,17 +494,17 @@ export function setupTerminalMenus(): vo
+ 					order: 1
+ 				}
+ 			},
+-			{
+-				id: MenuId.TerminalInlineTabContext,
+-				item: {
+-					command: {
+-						id: TerminalCommandId.MoveToEditor,
+-						title: terminalStrings.moveToEditor.value
+-					},
+-					group: ContextMenuGroup.Create,
+-					order: 2
+-				}
+-			},
++			// {
++			// 	id: MenuId.TerminalInlineTabContext,
++			// 	item: {
++			// 		command: {
++			// 			id: TerminalCommandId.MoveToEditor,
++			// 			title: terminalStrings.moveToEditor.value
++			// 		},
++			// 		group: ContextMenuGroup.Create,
++			// 		order: 2
++			// 	}
++			// },
+ 			{
+ 				id: MenuId.TerminalInlineTabContext,
+ 				item: {
+@@ -722,7 +712,7 @@ export function setupTerminalMenus(): vo
+ 	});
+ }
+ 
+-export function getTerminalActionBarArgs(location: ITerminalLocationOptions, profiles: ITerminalProfile[], defaultProfileName: string, contributedProfiles: readonly IExtensionTerminalProfile[], instantiationService: IInstantiationService, terminalService: ITerminalService, contextKeyService: IContextKeyService, commandService: ICommandService, dropdownMenu: IMenu): {
++export function getTerminalActionBarArgs(location: ITerminalLocationOptions, profiles: ITerminalProfile[], defaultProfileName: string, contributedProfiles: readonly IExtensionTerminalProfile[], instantiationService: IInstantiationService, terminalService: ITerminalService, contextKeyService: IContextKeyService, commandService: ICommandService): {
+ 	primaryAction: MenuItemAction;
+ 	dropdownAction: IAction;
+ 	dropdownMenuActions: IAction[];
+@@ -750,10 +740,10 @@ export function getTerminalActionBarArgs
+ 			shouldForwardArgs: true
+ 		};
+ 		if (isDefault) {
+-			dropdownActions.unshift(new MenuItemAction({ id: TerminalCommandId.NewWithProfile, title: localize('defaultTerminalProfile', "{0} (Default)", p.profileName), category: TerminalTabContextMenuGroup.Profile }, undefined, options, contextKeyService, commandService));
++			// dropdownActions.unshift(new MenuItemAction({ id: TerminalCommandId.NewWithProfile, title: localize('defaultTerminalProfile', "{0} (Default)", p.profileName), category: TerminalTabContextMenuGroup.Profile }, undefined, options, contextKeyService, commandService));
+ 			submenuActions.unshift(new MenuItemAction({ id: TerminalCommandId.Split, title: localize('defaultTerminalProfile', "{0} (Default)", p.profileName), category: TerminalTabContextMenuGroup.Profile }, undefined, splitOptions, contextKeyService, commandService));
+ 		} else {
+-			dropdownActions.push(new MenuItemAction({ id: TerminalCommandId.NewWithProfile, title: p.profileName.replace(/[\n\r\t]/g, ''), category: TerminalTabContextMenuGroup.Profile }, undefined, options, contextKeyService, commandService));
++			// dropdownActions.push(new MenuItemAction({ id: TerminalCommandId.NewWithProfile, title: p.profileName.replace(/[\n\r\t]/g, ''), category: TerminalTabContextMenuGroup.Profile }, undefined, options, contextKeyService, commandService));
+ 			submenuActions.push(new MenuItemAction({ id: TerminalCommandId.Split, title: p.profileName.replace(/[\n\r\t]/g, ''), category: TerminalTabContextMenuGroup.Profile }, undefined, splitOptions, contextKeyService, commandService));
+ 		}
+ 	}
+@@ -761,14 +751,14 @@ export function getTerminalActionBarArgs
+ 	for (const contributed of contributedProfiles) {
+ 		const isDefault = contributed.title === defaultProfileName;
+ 		const title = isDefault ? localize('defaultTerminalProfile', "{0} (Default)", contributed.title.replace(/[\n\r\t]/g, '')) : contributed.title.replace(/[\n\r\t]/g, '');
+-		dropdownActions.push(new Action('contributed', title, undefined, true, () => terminalService.createTerminal({
+-			config: {
+-				extensionIdentifier: contributed.extensionIdentifier,
+-				id: contributed.id,
+-				title
+-			},
+-			location
+-		})));
++		// dropdownActions.push(new Action('contributed', title, undefined, true, () => terminalService.createTerminal({
++		// 	config: {
++		// 		extensionIdentifier: contributed.extensionIdentifier,
++		// 		id: contributed.id,
++		// 		title
++		// 	},
++		// 	location
++		// })));
+ 		submenuActions.push(new Action('contributed-split', title, undefined, true, () => terminalService.createTerminal({
+ 			config: {
+ 				extensionIdentifier: contributed.extensionIdentifier,
+@@ -779,25 +769,25 @@ export function getTerminalActionBarArgs
+ 		})));
+ 	}
+ 
+-	const defaultProfileAction = dropdownActions.find(d => d.label.endsWith('(Default)'));
+-	if (defaultProfileAction) {
+-		dropdownActions = dropdownActions.filter(d => d !== defaultProfileAction).sort((a, b) => a.label.localeCompare(b.label));
+-		dropdownActions.unshift(defaultProfileAction);
+-	}
+-
+-	if (dropdownActions.length > 0) {
+-		dropdownActions.push(new SubmenuAction('split.profile', localize('splitTerminal', 'Split Terminal'), submenuActions));
+-		dropdownActions.push(new Separator());
+-	}
+-
+-	for (const [, configureActions] of dropdownMenu.getActions()) {
+-		for (const action of configureActions) {
+-			// make sure the action is a MenuItemAction
+-			if ('alt' in action) {
+-				dropdownActions.push(action);
+-			}
+-		}
+-	}
++	// const defaultProfileAction = dropdownActions.find(d => d.label.endsWith('(Default)'));
++	// if (defaultProfileAction) {
++	// 	dropdownActions = dropdownActions.filter(d => d !== defaultProfileAction).sort((a, b) => a.label.localeCompare(b.label));
++	// 	dropdownActions.unshift(defaultProfileAction);
++	// }
++
++	// if (dropdownActions.length > 0) {
++	// 	dropdownActions.push(new SubmenuAction('split.profile', localize('splitTerminal', 'Split Terminal'), submenuActions));
++	// 	dropdownActions.push(new Separator());
++	// }
++
++	// for (const [, configureActions] of dropdownMenu.getActions()) {
++	// 	for (const action of configureActions) {
++	// 		// make sure the action is a MenuItemAction
++	// 		if ('alt' in action) {
++	// 			dropdownActions.push(action);
++	// 		}
++	// 	}
++	// }
+ 
+ 	const defaultSubmenuProfileAction = submenuActions.find(d => d.label.endsWith('(Default)'));
+ 	if (defaultSubmenuProfileAction) {
+@@ -823,6 +813,6 @@ export function getTerminalActionBarArgs
+ 			arg: { location } as ICreateTerminalOptions,
+ 		});
+ 
+-	const dropdownAction = new Action('refresh profiles', 'Launch Profile...', 'codicon-chevron-down', true);
++	const dropdownAction = new Action('refresh profiles', 'Launch Profile...', 'codicon-chevron-down', false);
+ 	return { primaryAction, dropdownAction, dropdownMenuActions: dropdownActions, className: `terminal-tab-actions-${terminalService.resolveLocation(location)}` };
+ }
+Index: code-server/lib/vscode/src/vs/workbench/contrib/terminal/browser/terminalEditor.ts
+===================================================================
+--- code-server.orig/lib/vscode/src/vs/workbench/contrib/terminal/browser/terminalEditor.ts
++++ code-server/lib/vscode/src/vs/workbench/contrib/terminal/browser/terminalEditor.ts
+@@ -43,8 +43,6 @@ export class TerminalEditor extends Edit
+ 
+ 	private _lastDimension?: dom.Dimension;
+ 
+-	private readonly _dropdownMenu: IMenu;
+-
+ 	private _findWidget: TerminalFindWidget;
+ 	private _findState: FindReplaceState;
+ 
+@@ -73,7 +71,7 @@ export class TerminalEditor extends Edit
+ 		super(terminalEditorId, telemetryService, themeService, storageService);
+ 		this._findState = new FindReplaceState();
+ 		this._findWidget = instantiationService.createInstance(TerminalFindWidget, this._findState);
+-		this._dropdownMenu = this._register(menuService.createMenu(MenuId.TerminalNewDropdownContext, _contextKeyService));
++		// this._dropdownMenu = this._register(menuService.createMenu(MenuId.TerminalNewDropdownContext, _contextKeyService));
+ 		this._instanceMenu = this._register(menuService.createMenu(MenuId.TerminalEditorInstanceContext, _contextKeyService));
+ 		this._register(this._terminalService.onDidRequestHideFindWidget(() => this.hideFindWidget()));
+ 	}
+@@ -215,7 +213,7 @@ export class TerminalEditor extends Edit
+ 		switch (action.id) {
+ 			case TerminalCommandId.CreateWithProfileButton: {
+ 				const location = { viewColumn: ACTIVE_GROUP };
+-				const actions = getTerminalActionBarArgs(location, this._terminalProfileService.availableProfiles, this._getDefaultProfileName(), this._terminalProfileService.contributedProfiles, this._instantiationService, this._terminalService, this._contextKeyService, this._commandService, this._dropdownMenu);
++				const actions = getTerminalActionBarArgs(location, this._terminalProfileService.availableProfiles, this._getDefaultProfileName(), this._terminalProfileService.contributedProfiles, this._instantiationService, this._terminalService, this._contextKeyService, this._commandService);
+ 				const button = this._instantiationService.createInstance(DropdownWithPrimaryActionViewItem, actions.primaryAction, actions.dropdownAction, actions.dropdownMenuActions, actions.className, this._contextMenuService, {});
+ 				return button;
+ 			}
+Index: code-server/lib/vscode/src/vs/workbench/contrib/terminal/browser/terminalActions.ts
+===================================================================
+--- code-server.orig/lib/vscode/src/vs/workbench/contrib/terminal/browser/terminalActions.ts
++++ code-server/lib/vscode/src/vs/workbench/contrib/terminal/browser/terminalActions.ts
+@@ -141,44 +141,44 @@ export function registerTerminalActions(
+ 	});
+ 
+ 	// Register new with profile command
+-	refreshTerminalActions([]);
++	// refreshTerminalActions([]);
+ 
+-	registerAction2(class extends Action2 {
+-		constructor() {
+-			super({
+-				id: TerminalCommandId.CreateTerminalEditor,
+-				title: { value: localize('workbench.action.terminal.createTerminalEditor', "Create New Terminal in Editor Area"), original: 'Create New Terminal in Editor Area' },
+-				f1: true,
+-				category,
+-				precondition: TerminalContextKeys.processSupported
+-			});
+-		}
+-		async run(accessor: ServicesAccessor, args?: unknown) {
+-			const terminalService = accessor.get(ITerminalService);
+-			const options = (typeof args === 'object' && args && 'location' in args) ? args as ICreateTerminalOptions : { location: TerminalLocation.Editor };
+-			const instance = await terminalService.createTerminal(options);
+-			instance.focusWhenReady();
+-		}
+-	});
+-
+-	registerAction2(class extends Action2 {
+-		constructor() {
+-			super({
+-				id: TerminalCommandId.CreateTerminalEditorSide,
+-				title: { value: localize('workbench.action.terminal.createTerminalEditorSide', "Create New Terminal in Editor Area to the Side"), original: 'Create New Terminal in Editor Area to the Side' },
+-				f1: true,
+-				category,
+-				precondition: TerminalContextKeys.processSupported
+-			});
+-		}
+-		async run(accessor: ServicesAccessor) {
+-			const terminalService = accessor.get(ITerminalService);
+-			const instance = await terminalService.createTerminal({
+-				location: { viewColumn: SIDE_GROUP }
+-			});
+-			instance.focusWhenReady();
+-		}
+-	});
++	// registerAction2(class extends Action2 {
++	// 	constructor() {
++	// 		super({
++	// 			id: TerminalCommandId.CreateTerminalEditor,
++	// 			title: { value: localize('workbench.action.terminal.createTerminalEditor', "Create New Terminal in Editor Area"), original: 'Create New Terminal in Editor Area' },
++	// 			f1: true,
++	// 			category,
++	// 			precondition: TerminalContextKeys.processSupported
++	// 		});
++	// 	}
++	// 	async run(accessor: ServicesAccessor, args?: unknown) {
++	// 		const terminalService = accessor.get(ITerminalService);
++	// 		const options = (typeof args === 'object' && args && 'location' in args) ? args as ICreateTerminalOptions : { location: TerminalLocation.Editor };
++	// 		const instance = await terminalService.createTerminal(options);
++	// 		instance.focusWhenReady();
++	// 	}
++	// });
++
++	// registerAction2(class extends Action2 {
++	// 	constructor() {
++	// 		super({
++	// 			id: TerminalCommandId.CreateTerminalEditorSide,
++	// 			title: { value: localize('workbench.action.terminal.createTerminalEditorSide', "Create New Terminal in Editor Area to the Side"), original: 'Create New Terminal in Editor Area to the Side' },
++	// 			f1: true,
++	// 			category,
++	// 			precondition: TerminalContextKeys.processSupported
++	// 		});
++	// 	}
++	// 	async run(accessor: ServicesAccessor) {
++	// 		const terminalService = accessor.get(ITerminalService);
++	// 		const instance = await terminalService.createTerminal({
++	// 			location: { viewColumn: SIDE_GROUP }
++	// 		});
++	// 		instance.focusWhenReady();
++	// 	}
++	// });
+ 
+ 	registerAction2(class extends Action2 {
+ 		constructor() {
+@@ -1985,34 +1985,34 @@ export function registerTerminalActions(
+ 		}
+ 	});
+ 
+-	registerAction2(class extends Action2 {
+-		constructor() {
+-			super({
+-				id: TerminalCommandId.SelectDefaultProfile,
+-				title: { value: localize('workbench.action.terminal.selectDefaultShell', "Select Default Profile"), original: 'Select Default Profile' },
+-				f1: true,
+-				category,
+-				precondition: TerminalContextKeys.processSupported
+-			});
+-		}
+-		async run(accessor: ServicesAccessor) {
+-			await accessor.get(ITerminalService).showProfileQuickPick('setDefault');
+-		}
+-	});
+-
+-	registerAction2(class extends Action2 {
+-		constructor() {
+-			super({
+-				id: TerminalCommandId.CreateWithProfileButton,
+-				title: TerminalCommandId.CreateWithProfileButton,
+-				f1: false,
+-				category,
+-				precondition: TerminalContextKeys.processSupported
+-			});
+-		}
+-		async run(accessor: ServicesAccessor) {
+-		}
+-	});
++	// registerAction2(class extends Action2 {
++	// 	constructor() {
++	// 		super({
++	// 			id: TerminalCommandId.SelectDefaultProfile,
++	// 			title: { value: localize('workbench.action.terminal.selectDefaultShell', "Select Default Profile"), original: 'Select Default Profile' },
++	// 			f1: true,
++	// 			category,
++	// 			precondition: TerminalContextKeys.processSupported
++	// 		});
++	// 	}
++	// 	async run(accessor: ServicesAccessor) {
++	// 		await accessor.get(ITerminalService).showProfileQuickPick('setDefault');
++	// 	}
++	// });
++
++	// registerAction2(class extends Action2 {
++	// 	constructor() {
++	// 		super({
++	// 			id: TerminalCommandId.CreateWithProfileButton,
++	// 			title: TerminalCommandId.CreateWithProfileButton,
++	// 			f1: false,
++	// 			category,
++	// 			precondition: TerminalContextKeys.processSupported
++	// 		});
++	// 	}
++	// 	async run(accessor: ServicesAccessor) {
++	// 	}
++	// });
+ 
+ 	registerAction2(class extends Action2 {
+ 		constructor() {
+@@ -2283,100 +2283,100 @@ export function refreshTerminalActions(d
+ 	const profileEnum = createProfileSchemaEnums(detectedProfiles);
+ 	const category: ILocalizedString = { value: TERMINAL_ACTION_CATEGORY, original: 'Terminal' };
+ 	newWithProfileAction?.dispose();
+-	newWithProfileAction = registerAction2(class extends Action2 {
+-		constructor() {
+-			super({
+-				id: TerminalCommandId.NewWithProfile,
+-				title: { value: localize('workbench.action.terminal.newWithProfile', "Create New Terminal (With Profile)"), original: 'Create New Terminal (With Profile)' },
+-				f1: true,
+-				category,
+-				precondition: ContextKeyExpr.or(TerminalContextKeys.processSupported, TerminalContextKeys.webExtensionContributedProfile),
+-				description: {
+-					description: 'workbench.action.terminal.newWithProfile',
+-					args: [{
+-						name: 'args',
+-						schema: {
+-							type: 'object',
+-							required: ['profileName'],
+-							properties: {
+-								profileName: {
+-									description: localize('workbench.action.terminal.newWithProfile.profileName', "The name of the profile to create"),
+-									type: 'string',
+-									enum: profileEnum.values,
+-									markdownEnumDescriptions: profileEnum.markdownDescriptions
+-								}
+-							}
+-						}
+-					}]
+-				},
+-			});
+-		}
+-		async run(accessor: ServicesAccessor, eventOrOptionsOrProfile: MouseEvent | ICreateTerminalOptions | ITerminalProfile | { profileName: string } | undefined, profile?: ITerminalProfile) {
+-			const terminalService = accessor.get(ITerminalService);
+-			const terminalProfileService = accessor.get(ITerminalProfileService);
+-
+-			const terminalGroupService = accessor.get(ITerminalGroupService);
+-			const workspaceContextService = accessor.get(IWorkspaceContextService);
+-			const commandService = accessor.get(ICommandService);
+-
+-			let event: MouseEvent | PointerEvent | KeyboardEvent | undefined;
+-			let options: ICreateTerminalOptions | undefined;
+-			let instance: ITerminalInstance | undefined;
+-			let cwd: string | URI | undefined;
+-
+-			if (typeof eventOrOptionsOrProfile === 'object' && eventOrOptionsOrProfile && 'profileName' in eventOrOptionsOrProfile) {
+-				const config = terminalProfileService.availableProfiles.find(profile => profile.profileName === eventOrOptionsOrProfile.profileName);
+-				if (!config) {
+-					throw new Error(`Could not find terminal profile "${eventOrOptionsOrProfile.profileName}"`);
+-				}
+-				options = { config };
+-			} else if (eventOrOptionsOrProfile instanceof MouseEvent || eventOrOptionsOrProfile instanceof PointerEvent || eventOrOptionsOrProfile instanceof KeyboardEvent) {
+-				event = eventOrOptionsOrProfile;
+-				options = profile ? { config: profile } : undefined;
+-			} else {
+-				options = convertOptionsOrProfileToOptions(eventOrOptionsOrProfile);
+-			}
+-
+-			// split terminal
+-			if (event && (event.altKey || event.ctrlKey)) {
+-				const parentTerminal = terminalService.activeInstance;
+-				if (parentTerminal) {
+-					await terminalService.createTerminal({ location: { parentTerminal }, config: options?.config });
+-					return;
+-				}
+-			}
+-
+-			const folders = workspaceContextService.getWorkspace().folders;
+-			if (folders.length > 1) {
+-				// multi-root workspace, create root picker
+-				const options: IPickOptions<IQuickPickItem> = {
+-					placeHolder: localize('workbench.action.terminal.newWorkspacePlaceholder', "Select current working directory for new terminal")
+-				};
+-				const workspace = await commandService.executeCommand(PICK_WORKSPACE_FOLDER_COMMAND_ID, [options]);
+-				if (!workspace) {
+-					// Don't create the instance if the workspace picker was canceled
+-					return;
+-				}
+-				cwd = workspace.uri;
+-			}
+-
+-			if (options) {
+-				options.cwd = cwd;
+-				instance = await terminalService.createTerminal(options);
+-			} else {
+-				instance = await terminalService.showProfileQuickPick('createInstance', cwd);
+-			}
+-
+-			if (instance) {
+-				terminalService.setActiveInstance(instance);
+-				if (instance.target === TerminalLocation.Editor) {
+-					await instance.focusWhenReady(true);
+-				} else {
+-					await terminalGroupService.showPanel(true);
+-				}
+-			}
+-		}
+-	});
++	// newWithProfileAction = registerAction2(class extends Action2 {
++	// 	constructor() {
++	// 		super({
++	// 			id: TerminalCommandId.NewWithProfile,
++	// 			title: { value: localize('workbench.action.terminal.newWithProfile', "Create New Terminal (With Profile)"), original: 'Create New Terminal (With Profile)' },
++	// 			f1: true,
++	// 			category,
++	// 			precondition: ContextKeyExpr.or(TerminalContextKeys.processSupported, TerminalContextKeys.webExtensionContributedProfile),
++	// 			description: {
++	// 				description: 'workbench.action.terminal.newWithProfile',
++	// 				args: [{
++	// 					name: 'args',
++	// 					schema: {
++	// 						type: 'object',
++	// 						required: ['profileName'],
++	// 						properties: {
++	// 							profileName: {
++	// 								description: localize('workbench.action.terminal.newWithProfile.profileName', "The name of the profile to create"),
++	// 								type: 'string',
++	// 								enum: profileEnum.values,
++	// 								markdownEnumDescriptions: profileEnum.markdownDescriptions
++	// 							}
++	// 						}
++	// 					}
++	// 				}]
++	// 			},
++	// 		});
++	// 	}
++	// 	async run(accessor: ServicesAccessor, eventOrOptionsOrProfile: MouseEvent | ICreateTerminalOptions | ITerminalProfile | { profileName: string } | undefined, profile?: ITerminalProfile) {
++	// 		const terminalService = accessor.get(ITerminalService);
++	// 		const terminalProfileService = accessor.get(ITerminalProfileService);
++
++	// 		const terminalGroupService = accessor.get(ITerminalGroupService);
++	// 		const workspaceContextService = accessor.get(IWorkspaceContextService);
++	// 		const commandService = accessor.get(ICommandService);
++
++	// 		let event: MouseEvent | PointerEvent | KeyboardEvent | undefined;
++	// 		let options: ICreateTerminalOptions | undefined;
++	// 		let instance: ITerminalInstance | undefined;
++	// 		let cwd: string | URI | undefined;
++
++	// 		if (typeof eventOrOptionsOrProfile === 'object' && eventOrOptionsOrProfile && 'profileName' in eventOrOptionsOrProfile) {
++	// 			const config = terminalProfileService.availableProfiles.find(profile => profile.profileName === eventOrOptionsOrProfile.profileName);
++	// 			if (!config) {
++	// 				throw new Error(`Could not find terminal profile "${eventOrOptionsOrProfile.profileName}"`);
++	// 			}
++	// 			options = { config };
++	// 		} else if (eventOrOptionsOrProfile instanceof MouseEvent || eventOrOptionsOrProfile instanceof PointerEvent || eventOrOptionsOrProfile instanceof KeyboardEvent) {
++	// 			event = eventOrOptionsOrProfile;
++	// 			options = profile ? { config: profile } : undefined;
++	// 		} else {
++	// 			options = convertOptionsOrProfileToOptions(eventOrOptionsOrProfile);
++	// 		}
++
++	// 		// split terminal
++	// 		if (event && (event.altKey || event.ctrlKey)) {
++	// 			const parentTerminal = terminalService.activeInstance;
++	// 			if (parentTerminal) {
++	// 				await terminalService.createTerminal({ location: { parentTerminal }, config: options?.config });
++	// 				return;
++	// 			}
++	// 		}
++
++	// 		const folders = workspaceContextService.getWorkspace().folders;
++	// 		if (folders.length > 1) {
++	// 			// multi-root workspace, create root picker
++	// 			const options: IPickOptions<IQuickPickItem> = {
++	// 				placeHolder: localize('workbench.action.terminal.newWorkspacePlaceholder', "Select current working directory for new terminal")
++	// 			};
++	// 			const workspace = await commandService.executeCommand(PICK_WORKSPACE_FOLDER_COMMAND_ID, [options]);
++	// 			if (!workspace) {
++	// 				// Don't create the instance if the workspace picker was canceled
++	// 				return;
++	// 			}
++	// 			cwd = workspace.uri;
++	// 		}
++
++	// 		if (options) {
++	// 			options.cwd = cwd;
++	// 			instance = await terminalService.createTerminal(options);
++	// 		} else {
++	// 			instance = await terminalService.showProfileQuickPick('createInstance', cwd);
++	// 		}
++
++	// 		if (instance) {
++	// 			terminalService.setActiveInstance(instance);
++	// 			if (instance.target === TerminalLocation.Editor) {
++	// 				await instance.focusWhenReady(true);
++	// 			} else {
++	// 				await terminalGroupService.showPanel(true);
++	// 			}
++	// 		}
++	// 	}
++	// });
+ }
+ 
+ /** doc */
+Index: code-server/lib/vscode/src/vs/workbench/contrib/terminal/browser/terminalInstance.ts
+===================================================================
+--- code-server.orig/lib/vscode/src/vs/workbench/contrib/terminal/browser/terminalInstance.ts
++++ code-server/lib/vscode/src/vs/workbench/contrib/terminal/browser/terminalInstance.ts
+@@ -1043,28 +1043,28 @@ export class TerminalInstance extends Di
+ 
+ 			// for keyboard events that resolve to commands described
+ 			// within commandsToSkipShell, either alert or skip processing by xterm.js
+-			if (resolveResult && resolveResult.commandId && this._skipTerminalCommands.some(k => k === resolveResult.commandId) && !this._configHelper.config.sendKeybindingsToShell) {
+-				// don't alert when terminal is opened or closed
+-				if (this._storageService.getBoolean(SHOW_TERMINAL_CONFIG_PROMPT_KEY, StorageScope.GLOBAL, true) &&
+-					this._hasHadInput &&
+-					!TERMINAL_CREATION_COMMANDS.includes(resolveResult.commandId)) {
+-					this._notificationService.prompt(
+-						Severity.Info,
+-						nls.localize('keybindingHandling', "Some keybindings don't go to the terminal by default and are handled by {0} instead.", this._productService.nameLong),
+-						[
+-							{
+-								label: nls.localize('configureTerminalSettings', "Configure Terminal Settings"),
+-								run: () => {
+-									this._preferencesService.openSettings({ jsonEditor: false, query: `@id:${TerminalSettingId.CommandsToSkipShell},${TerminalSettingId.SendKeybindingsToShell},${TerminalSettingId.AllowChords}` });
+-								}
+-							} as IPromptChoice
+-						]
+-					);
+-					this._storageService.store(SHOW_TERMINAL_CONFIG_PROMPT_KEY, false, StorageScope.GLOBAL, StorageTarget.USER);
+-				}
+-				event.preventDefault();
+-				return false;
+-			}
++			// if (resolveResult && resolveResult.commandId && this._skipTerminalCommands.some(k => k === resolveResult.commandId) && !this._configHelper.config.sendKeybindingsToShell) {
++			// 	// don't alert when terminal is opened or closed
++			// 	if (this._storageService.getBoolean(SHOW_TERMINAL_CONFIG_PROMPT_KEY, StorageScope.GLOBAL, true) &&
++			// 		this._hasHadInput &&
++			// 		!TERMINAL_CREATION_COMMANDS.includes(resolveResult.commandId)) {
++			// 		this._notificationService.prompt(
++			// 			Severity.Info,
++			// 			nls.localize('keybindingHandling', "Some keybindings don't go to the terminal by default and are handled by {0} instead.", this._productService.nameLong),
++			// 			[
++			// 				{
++			// 					label: nls.localize('configureTerminalSettings', "Configure Terminal Settings"),
++			// 					run: () => {
++			// 						this._preferencesService.openSettings({ jsonEditor: false, query: `@id:${TerminalSettingId.CommandsToSkipShell},${TerminalSettingId.SendKeybindingsToShell},${TerminalSettingId.AllowChords}` });
++			// 					}
++			// 				} as IPromptChoice
++			// 			]
++			// 		);
++			// 		this._storageService.store(SHOW_TERMINAL_CONFIG_PROMPT_KEY, false, StorageScope.GLOBAL, StorageTarget.USER);
++			// 	}
++			// 	event.preventDefault();
++			// 	return false;
++			// }
+ 
+ 			// Skip processing by xterm.js of keyboard events that match menu bar mnemonics
+ 			if (this._configHelper.config.allowMnemonics && !isMacintosh && event.altKey) {
+Index: code-server/lib/vscode/src/vs/workbench/contrib/terminal/browser/terminalQuickAccess.ts
+===================================================================
+--- code-server.orig/lib/vscode/src/vs/workbench/contrib/terminal/browser/terminalQuickAccess.ts
++++ code-server/lib/vscode/src/vs/workbench/contrib/terminal/browser/terminalQuickAccess.ts
+@@ -70,12 +70,12 @@ export class TerminalQuickAccessProvider
+ 			ariaLabel: createTerminalLabel,
+ 			accept: () => this._commandService.executeCommand(TerminalCommandId.New)
+ 		});
+-		const createWithProfileLabel = localize("workbench.action.terminal.newWithProfilePlus", "Create New Terminal With Profile");
+-		terminalPicks.push({
+-			label: `$(plus) ${createWithProfileLabel}`,
+-			ariaLabel: createWithProfileLabel,
+-			accept: () => this._commandService.executeCommand(TerminalCommandId.NewWithProfile)
+-		});
++		// const createWithProfileLabel = localize("workbench.action.terminal.newWithProfilePlus", "Create New Terminal With Profile");
++		// terminalPicks.push({
++		// 	label: `$(plus) ${createWithProfileLabel}`,
++		// 	ariaLabel: createWithProfileLabel,
++		// 	accept: () => this._commandService.executeCommand(TerminalCommandId.NewWithProfile)
++		// });
+ 		return terminalPicks;
+ 	}
+ 
+Index: code-server/lib/vscode/src/vs/editor/test/node/classification/typescript.test.ts
+===================================================================
+--- code-server.orig/lib/vscode/src/vs/editor/test/node/classification/typescript.test.ts
++++ code-server/lib/vscode/src/vs/editor/test/node/classification/typescript.test.ts
+@@ -107,7 +107,6 @@ function parseTest(fileName: string): IT
+ 	return { content, assertions };
+ }
+ 
+-// @ts-expect-error
+ function executeTest(fileName: string, parseFunc: IParseFunc): void {
+ 	const { content, assertions } = parseTest(fileName);
+ 	const actual = parseFunc(content);

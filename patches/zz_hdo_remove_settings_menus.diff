@@ -1,0 +1,120 @@
+Index: code-server/lib/vscode/src/vs/workbench/contrib/workspace/browser/workspace.contribution.ts
+===================================================================
+--- code-server.orig/lib/vscode/src/vs/workbench/contrib/workspace/browser/workspace.contribution.ts
++++ code-server/lib/vscode/src/vs/workbench/contrib/workspace/browser/workspace.contribution.ts
+@@ -641,33 +641,33 @@ registerAction2(class extends Action2 {
+ 
+ // Manage Workspace Trust
+ 
+-registerAction2(class extends Action2 {
+-	constructor() {
+-		super({
+-			id: MANAGE_TRUST_COMMAND_ID,
+-			title: { original: 'Manage Workspace Trust', value: localize('manageWorkspaceTrust', "Manage Workspace Trust") },
+-			precondition: ContextKeyExpr.and(WorkspaceTrustContext.IsEnabled, ContextKeyExpr.equals(`config.${WORKSPACE_TRUST_ENABLED}`, true)),
+-			category: localize('workspacesCategory', "Workspaces"),
+-			f1: true,
+-			menu: {
+-				id: MenuId.GlobalActivity,
+-				group: '6_workspace_trust',
+-				order: 40,
+-				when: ContextKeyExpr.and(WorkspaceTrustContext.IsEnabled, ContextKeyExpr.equals(`config.${WORKSPACE_TRUST_ENABLED}`, true))
+-			},
+-		});
+-	}
+-
+-	run(accessor: ServicesAccessor) {
+-		const editorService = accessor.get(IEditorService);
+-		const instantiationService = accessor.get(IInstantiationService);
+-
+-		const input = instantiationService.createInstance(WorkspaceTrustEditorInput);
+-
+-		editorService.openEditor(input, { pinned: true });
+-		return;
+-	}
+-});
++// registerAction2(class extends Action2 {
++// 	constructor() {
++// 		super({
++// 			id: MANAGE_TRUST_COMMAND_ID,
++// 			title: { original: 'Manage Workspace Trust', value: localize('manageWorkspaceTrust', "Manage Workspace Trust") },
++// 			precondition: ContextKeyExpr.and(WorkspaceTrustContext.IsEnabled, ContextKeyExpr.equals(`config.${WORKSPACE_TRUST_ENABLED}`, true)),
++// 			category: localize('workspacesCategory', "Workspaces"),
++// 			f1: true,
++// 			menu: {
++// 				id: MenuId.GlobalActivity,
++// 				group: '6_workspace_trust',
++// 				order: 40,
++// 				when: ContextKeyExpr.and(WorkspaceTrustContext.IsEnabled, ContextKeyExpr.equals(`config.${WORKSPACE_TRUST_ENABLED}`, true))
++// 			},
++// 		});
++// 	}
++
++// 	run(accessor: ServicesAccessor) {
++// 		const editorService = accessor.get(IEditorService);
++// 		const instantiationService = accessor.get(IInstantiationService);
++
++// 		const input = instantiationService.createInstance(WorkspaceTrustEditorInput);
++
++// 		editorService.openEditor(input, { pinned: true });
++// 		return;
++// 	}
++// });
+ 
+ 
+ /*
+Index: code-server/lib/vscode/src/vs/workbench/contrib/extensions/browser/extensions.contribution.ts
+===================================================================
+--- code-server.orig/lib/vscode/src/vs/workbench/contrib/extensions/browser/extensions.contribution.ts
++++ code-server/lib/vscode/src/vs/workbench/contrib/extensions/browser/extensions.contribution.ts
+@@ -533,28 +533,28 @@ class ExtensionsContributions extends Di
+ 			}
+ 		});
+ 
+-		this.registerExtensionAction({
+-			id: 'workbench.extensions.action.showRecommendedKeymapExtensions',
+-			title: { value: localize('showRecommendedKeymapExtensionsShort', "Keymaps"), original: 'Keymaps' },
+-			category: PreferencesLocalizedLabel,
+-			menu: [{
+-				id: MenuId.CommandPalette,
+-				when: CONTEXT_HAS_GALLERY
+-			}, {
+-				id: MenuId.MenubarPreferencesMenu,
+-				group: '2_keybindings',
+-				order: 2
+-			}, {
+-				id: MenuId.GlobalActivity,
+-				group: '2_keybindings',
+-				order: 2
+-			}],
+-			menuTitles: {
+-				[MenuId.MenubarPreferencesMenu.id]: localize({ key: 'miimportKeyboardShortcutsFrom', comment: ['&& denotes a mnemonic'] }, "&&Migrate Keyboard Shortcuts from..."),
+-				[MenuId.GlobalActivity.id]: localize('importKeyboardShortcutsFroms', "Migrate Keyboard Shortcuts from...")
+-			},
+-			run: () => runAction(this.instantiationService.createInstance(SearchExtensionsAction, '@recommended:keymaps '))
+-		});
++		// this.registerExtensionAction({
++		// 	id: 'workbench.extensions.action.showRecommendedKeymapExtensions',
++		// 	title: { value: localize('showRecommendedKeymapExtensionsShort', "Keymaps"), original: 'Keymaps' },
++		// 	category: PreferencesLocalizedLabel,
++		// 	menu: [{
++		// 		id: MenuId.CommandPalette,
++		// 		when: CONTEXT_HAS_GALLERY
++		// 	}, {
++		// 		id: MenuId.MenubarPreferencesMenu,
++		// 		group: '2_keybindings',
++		// 		order: 2
++		// 	}, {
++		// 		id: MenuId.GlobalActivity,
++		// 		group: '2_keybindings',
++		// 		order: 2
++		// 	}],
++		// 	menuTitles: {
++		// 		[MenuId.MenubarPreferencesMenu.id]: localize({ key: 'miimportKeyboardShortcutsFrom', comment: ['&& denotes a mnemonic'] }, "&&Migrate Keyboard Shortcuts from..."),
++		// 		[MenuId.GlobalActivity.id]: localize('importKeyboardShortcutsFroms', "Migrate Keyboard Shortcuts from...")
++		// 	},
++		// 	run: () => runAction(this.instantiationService.createInstance(SearchExtensionsAction, '@recommended:keymaps '))
++		// });
+ 
+ 		this.registerExtensionAction({
+ 			id: 'workbench.extensions.action.showLanguageExtensions',
