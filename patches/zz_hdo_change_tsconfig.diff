@@ -1,0 +1,17 @@
+Index: code-server/lib/vscode/src/tsconfig.base.json
+===================================================================
+--- code-server.orig/lib/vscode/src/tsconfig.base.json
++++ code-server/lib/vscode/src/tsconfig.base.json
+@@ -5,8 +5,10 @@
+ 		"experimentalDecorators": true,
+ 		"noImplicitReturns": true,
+ 		"noImplicitOverride": true,
+-		"noUnusedLocals": true,
+-		"allowUnreachableCode": false,
++		"noUnusedLocals": false,
++		"noUnusedParameters": false,
++		"allowUnreachableCode": true,
++		"allowUnusedLabels": true,
+ 		"strict": true,
+ 		"exactOptionalPropertyTypes": false,
+ 		"useUnknownInCatchVariables": false,
